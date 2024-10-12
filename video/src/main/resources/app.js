@@ -1,3 +1,9 @@
+
+const localVideo = document.getElementById('localVideo');
+const remoteVideo = document.getElementById('remoteVideo');
+let localStream;
+let peerConnection;
+
 // Get local video/audio stream
 navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     .then(stream => {
@@ -32,8 +38,7 @@ function initPeerConnection() {
 let stompClient;
 function connect() {
 	console.log("Connecting... ") ;
-    const socket = new SockJS('/ws');
-	console.log("Connected there ") ;
+    const socket = new SockJS('http://127.0.0.0:8080/ws');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function () {
         stompClient.subscribe('/topic/video-offer', function (message) {

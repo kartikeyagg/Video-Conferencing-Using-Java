@@ -55,12 +55,16 @@ function connect() {
     });
 }
 
-// Offer creation (Caller)
-function createOffer() {
+
+window.createOffer = function () {
+    console.log("Creating offer...");
     peerConnection.createOffer()
         .then(offer => {
             peerConnection.setLocalDescription(offer);
             stompClient.send("/app/video-offer", {}, JSON.stringify(offer));
+        })
+        .catch(error => {
+            console.error('Error creating offer: ', error);
         });
 }
 

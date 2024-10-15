@@ -5,36 +5,46 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class VideoWebSocketHandler extends TextWebSocketHandler {
 
-    // 
     private Map<String, WebSocketSession> sessions = new HashMap<>();
+    private static int count =0  ;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
        
         String userId = getUserIdFromSession(session); 
-        sessions.put(userId, session);
+        sessions.put(userId+count++, session);
 
         System.out.println("Connection established with userId: " + userId);
     }
 
     @Override
-    public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    public void handleTextMessage(WebSocketSession session1, TextMessage message) throws Exception {
         
-        String payload = message.getPayload();
-        System.out.println("Received message: " + payload);
+		String payload = message.getPayload(); 
+		System.out.println("Received message: " + payload);
 
-     
-        String targetUserId = getTargetUserIdFromPayload(payload); 
-        WebSocketSession targetSession = sessions.get(targetUserId);
+		sessions.forEach((id, session) -> {
 
-        if (targetSession != null && targetSession.isOpen()) {
-            targetSession.sendMessage(new TextMessage(payload));
-        }
+			if (! session.equals(session1)) {
+
+				try {
+					session.sendMessage(new TextMessage(payload));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        		
+        	}
+        	
+        });
+
+ 
     }
 
     @Override
@@ -53,3 +63,8 @@ public class VideoWebSocketHandler extends TextWebSocketHandler {
     }
 
  
+    private String getTargetUserIdFromPayload(String payload) {
+       
+        return "targetUserId"; // Parse the actual userId from the message
+    }
+}
